@@ -1,0 +1,17 @@
+---
+
+server:
+  applicationConnectors:
+    - type: http
+      port: 8080
+  adminConnectors:
+    - type: http
+      port: 8081
+      
+logging:
+  level: INFO
+  loggers:
+    com.test : DEBUG
+  appenders:
+    - type: console
+      logFormat: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
