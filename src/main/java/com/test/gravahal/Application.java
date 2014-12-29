@@ -1,5 +1,7 @@
 package com.test.gravahal;
 
+import com.test.gravahal.resource.GravaHalResource;
+
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 
@@ -14,7 +16,7 @@ public class Application extends io.dropwizard.Application<Configuration> {
 
     @Override
     public void run(Configuration configuration, Environment environment) throws Exception {
-        environment.jersey().register(GameResource.class);
+        environment.jersey().register(GravaHalResource.class);
     }
 
 }
