@@ -4,14 +4,12 @@ import io.dropwizard.jackson.Jackson;
 import io.dropwizard.testing.junit.DropwizardAppRule;
 
 import java.text.MessageFormat;
-import java.text.SimpleDateFormat;
 
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExternalResource;
 import org.junit.rules.RuleChain;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import com.sun.jersey.api.client.Client;
@@ -31,16 +29,16 @@ public class GravaHalGameDemoTest {
     }
 
     private final static ObjectMapper mapper = Jackson.newObjectMapper();
-    static {
-        mapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
-        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-    }
+//    static {
+//        mapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
+//        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+//    }
     
     private Client client;
 
     @Rule
     public RuleChain chain = RuleChain.outerRule(
-            new DropwizardAppRule<>(Application.class, configLocation)).around(new ExternalResource() {
+            new DropwizardAppRule<>(GameDemo.class, configLocation)).around(new ExternalResource() {
         @Override
         protected void before() throws Throwable {
             ClientConfig clientConfig = new DefaultClientConfig();
