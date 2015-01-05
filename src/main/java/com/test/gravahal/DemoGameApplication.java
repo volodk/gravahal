@@ -6,9 +6,9 @@ import io.dropwizard.setup.Environment;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.test.gravahal.repository.BoardRepository;
+import com.test.gravahal.repository.GameRepository;
 import com.test.gravahal.repository.PlayerRepository;
-import com.test.gravahal.repository.impl.InMemoryBoardRepository;
+import com.test.gravahal.repository.impl.InMemoryGameRepository;
 import com.test.gravahal.repository.impl.InMemoryPlayerRepository;
 import com.test.gravahal.resource.GameEndpoint;
 
@@ -28,7 +28,7 @@ public class DemoGameApplication extends io.dropwizard.Application<Configuration
         Injector ioc = Guice.createInjector(new AbstractModule(){
             @Override
             protected void configure() {
-                bind(BoardRepository.class).to(InMemoryBoardRepository.class);
+                bind(GameRepository.class).to(InMemoryGameRepository.class);
                 bind(PlayerRepository.class).to(InMemoryPlayerRepository.class);
             }
         });

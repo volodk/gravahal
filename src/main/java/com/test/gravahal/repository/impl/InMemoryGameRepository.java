@@ -7,16 +7,16 @@ import java.util.concurrent.atomic.AtomicInteger;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.inject.Singleton;
-import com.test.gravahal.domain.Board;
-import com.test.gravahal.repository.BoardRepository;
+import com.test.gravahal.domain.Game;
+import com.test.gravahal.repository.GameRepository;
 
 // Volodymyr_Krasnikov1 <vkrasnikov@gmail.com> 4:07:47 PM 
 
 @Singleton
-public class InMemoryBoardRepository implements BoardRepository {
+public class InMemoryGameRepository implements GameRepository {
     
     private AtomicInteger sequence = new AtomicInteger();
-    private ConcurrentMap<Integer, Board> table = new ConcurrentHashMap<>();
+    private ConcurrentMap<Integer, Game> table = new ConcurrentHashMap<>();
     
     @Override
     public int getNextGameId() {
@@ -24,7 +24,7 @@ public class InMemoryBoardRepository implements BoardRepository {
     }
 
     @Override
-    public Board save(Board entity) {
+    public Game save(Game entity) {
         Preconditions.checkNotNull(entity);
         int id = entity.getId();
         table.putIfAbsent(id, entity);
@@ -32,21 +32,21 @@ public class InMemoryBoardRepository implements BoardRepository {
     }
 
     @Override
-    public void update(Board entity) {
+    public void update(Game entity) {
         Preconditions.checkNotNull(entity);
         int id = entity.getId();
         table.replace(id, entity);
     }
 
     @Override
-    public void delete(Board entity) {
+    public void delete(Game entity) {
         Preconditions.checkNotNull(entity);
         int id = entity.getId();
         table.remove(id);
     }
 
     @Override
-    public Optional<Board> get(int id) {
+    public Optional<Game> get(int id) {
         if( table.containsKey(id) )
             return Optional.of( table.get(id) );
         return Optional.absent();

@@ -2,7 +2,6 @@ package com.test.gravahal.domain;
 
 import java.util.Arrays;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Objects;
 
 public class Player {
@@ -10,13 +9,8 @@ public class Player {
     private static final int PIT_COUNT = 6;
     private static final int ROCKS_PER_PIT = 6;
     
-    @JsonProperty
     private int id;
-    
-    @JsonProperty
     private int gravahalField;
-    
-    @JsonProperty
     private int[] pits = new int[PIT_COUNT];
     
     public Player() {
@@ -48,6 +42,20 @@ public class Player {
         this.pits = pits;
     }
     
+    int countStones(int pitNumber){
+        return pits[pitNumber - 1];
+    }
+    
+    int pickup(int pitNumber){
+        int tmp = pits[pitNumber - 1];
+        pits[pitNumber - 1] = 0;
+        return tmp;
+    }
+    
+    public void incrementPit(int pitNumber) {
+        pits[pitNumber - 1] += 1;
+    }
+    
     @Override
     public String toString() {
         return Objects.toStringHelper(this)
@@ -56,5 +64,4 @@ public class Player {
                 .add("pits", Arrays.toString(pits) )
             .toString();
     }
-    
 }

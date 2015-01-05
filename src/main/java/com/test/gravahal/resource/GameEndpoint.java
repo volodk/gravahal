@@ -14,7 +14,7 @@ import javax.ws.rs.core.Response.Status;
 
 import com.google.common.base.Optional;
 import com.google.inject.Inject;
-import com.test.gravahal.domain.Board;
+import com.test.gravahal.domain.Game;
 import com.test.gravahal.service.GameService;
 
 // Volodymyr_Krasnikov1 <vkrasnikov@gmail.com> 3:55:47 PM 
@@ -32,13 +32,13 @@ public class GameEndpoint {
     
     @POST @Path("/start")
     public Response startGame(){
-        Board b = service.startNewGame();
+        Game b = service.startNewGame();
         return Response.ok(b).build();
     }
     
-    @GET @Path("/board/{game-id}")
-    public Response getBoardStatus(@NotNull @PathParam("game-id") Integer gameId){
-        Optional<Board> opt = service.getBoard(gameId);
+    @GET @Path("/{game-id}")
+    public Response getGameStatus(@NotNull @PathParam("game-id") Integer gameId){
+        Optional<Game> opt = service.getBoard(gameId);
         if( opt.isPresent() ){ 
             return Response.ok( opt.get() ).build();
         } else {
@@ -46,7 +46,7 @@ public class GameEndpoint {
         }
     }
     
-    @POST @Path("/move/{game-id}/{player-id}/{pit-number}")
+    @POST @Path("/{game-id}/move/{player-id}/{pit-number}")
     public Response makeMove(
             @NotNull @PathParam("game-id") Integer gameId, 
             @NotNull @PathParam("player-id") Integer playerId,
