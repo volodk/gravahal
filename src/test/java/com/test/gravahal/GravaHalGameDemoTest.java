@@ -38,7 +38,7 @@ public class GravaHalGameDemoTest {
 
     @Rule
     public RuleChain chain = RuleChain.outerRule(
-            new DropwizardAppRule<>(GameDemo.class, configLocation)).around(new ExternalResource() {
+            new DropwizardAppRule<>(DemoGameApplication.class, configLocation)).around(new ExternalResource() {
         @Override
         protected void before() throws Throwable {
             ClientConfig clientConfig = new DefaultClientConfig();

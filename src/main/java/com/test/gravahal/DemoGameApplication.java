@@ -6,13 +6,15 @@ import io.dropwizard.setup.Environment;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.test.gravahal.repository.GameBoardRepository;
-import com.test.gravahal.repository.impl.InMemoryGameBoardRepository;
+import com.test.gravahal.repository.BoardRepository;
+import com.test.gravahal.repository.PlayerRepository;
+import com.test.gravahal.repository.impl.InMemoryBoardRepository;
+import com.test.gravahal.repository.impl.InMemoryPlayerRepository;
 import com.test.gravahal.resource.GameEndpoint;
 
 // Volodymyr_Krasnikov1 <vkrasnikov@gmail.com> 2:46:27 PM 
 
-public class GameDemo extends io.dropwizard.Application<Configuration> {
+public class DemoGameApplication extends io.dropwizard.Application<Configuration> {
 
     @Override
     public void initialize(Bootstrap<Configuration> bootstrap) {
@@ -26,7 +28,8 @@ public class GameDemo extends io.dropwizard.Application<Configuration> {
         Injector ioc = Guice.createInjector(new AbstractModule(){
             @Override
             protected void configure() {
-                bind(GameBoardRepository.class).to(InMemoryGameBoardRepository.class);
+                bind(BoardRepository.class).to(InMemoryBoardRepository.class);
+                bind(PlayerRepository.class).to(InMemoryPlayerRepository.class);
             }
         });
         
@@ -39,7 +42,7 @@ public class GameDemo extends io.dropwizard.Application<Configuration> {
     
     // Entry point
     public static void main(String[] args) throws Exception {
-        new GameDemo().run(args);
+        new DemoGameApplication().run(args);
     }
 
 }
