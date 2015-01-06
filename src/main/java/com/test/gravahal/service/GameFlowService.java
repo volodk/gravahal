@@ -16,17 +16,19 @@ public class GameFlowService {
     public void advance(Game game, Player p1, Player p2, Integer actingPlayerId, Integer pitNumber) {
         Preconditions.checkNotNull(game, "Game param cannot be Null");
         
+        // fail-fast manner: exit as soon as wrong state detected
+        // correct game state is available as soon as opposite player commits
         if( game.isActive()){
-            if( isPitNonEmpty(p1, p2, actingPlayerId, pitNumber) ){
-                if( isValidMoveOrdering(game, actingPlayerId) ){
+            if( isValidMoveOrdering(game, actingPlayerId) ){
+                if( isPitNonEmpty(p1, p2, actingPlayerId, pitNumber) ){
                     simulateMove(game, p1, p2, actingPlayerId, pitNumber);
                     checkForWinPosition(game, choosePlayer(actingPlayerId, p1, p2) );
                 } else {
-                    LOGGER.warn("Game: {}, player: {}, move: {} is invalid -> this is not your turn", game, actingPlayerId,
-                            pitNumber);
+                    LOGGER.warn("Game: {}, player: {}, move: {} is invalid -> empty pit", game, actingPlayerId, pitNumber);
                 }
             } else {
-                LOGGER.warn("Game: {}, player: {}, move: {} is invalid -> empty pit", game, actingPlayerId, pitNumber);
+                LOGGER.warn("Game: {}, player: {}, move: {} is invalid -> this is not your turn", game, actingPlayerId,
+                        pitNumber);
             }
         } else {
             LOGGER.info("Game, id {} has been finished", game.getId());
@@ -45,10 +47,12 @@ public class GameFlowService {
         Player p = choosePlayer(actingPlayerId, p1, p2);
         int remainder = p.pickup(pitNumber);
         boolean fillGravaHal = true;
+        int beginWithPit = pitNumber + 1;
         while ( remainder > 0 ){
-            remainder = p.spreadStones(remainder, fillGravaHal, pitNumber + 1);
+            remainder = p.spreadStones(remainder, fillGravaHal, beginWithPit);
              
             p = chooseOpposite(p1, p2, p); // spread remaining stones among opposite GravaHal
+            beginWithPit = 1;
             
             fillGravaHal = !fillGravaHal;   // cannot mark opposite palyer's gravahal
         }

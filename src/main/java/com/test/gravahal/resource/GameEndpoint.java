@@ -15,12 +15,14 @@ import javax.ws.rs.core.Response.Status;
 import com.google.common.base.Optional;
 import com.google.inject.Inject;
 import com.test.gravahal.domain.Game;
+import com.test.gravahal.domain.Player;
 import com.test.gravahal.service.GameService;
+import com.test.gravahal.vo.GameValueObject;
 
 // Volodymyr_Krasnikov1 <vkrasnikov@gmail.com> 3:55:47 PM 
 
-@Path("/game")
 @Produces(MediaType.APPLICATION_JSON)
+@Path("/")
 public class GameEndpoint {
     
     private final GameService service;
@@ -30,30 +32,48 @@ public class GameEndpoint {
         this.service = service;
     }
     
-    @POST @Path("/start")
+    @POST @Path("/game")
     public Response startGame(){
-        Game b = service.startNewGame();
-        return Response.ok(b).build();
+        Game g = service.startNewGame();
+        Player associatedPlayer1 = service.getAssociatedPlayer(g.getFirstPlayerId());
+        Player associatedPlayer2 = service.getAssociatedPlayer(g.getSecondPlayerId());
+        return Response.ok(
+                new GameValueObject(g, associatedPlayer1, associatedPlayer2)).build();
     }
     
-    @GET @Path("/{game-id}")
+    @GET @Path("/game/{game-id}")
     public Response getGameStatus(@NotNull @PathParam("game-id") Integer gameId){
         Optional<Game> opt = service.getBoard(gameId);
         if( opt.isPresent() ){ 
-            return Response.ok( opt.get() ).build();
+            Game g = opt.get();
+            Player associatedPlayer1 = service
+                    .getAssociatedPlayer(g.getFirstPlayerId());
+            Player associatedPlayer2 = service
+                    .getAssociatedPlayer(g.getSecondPlayerId());
+            return Response.ok(new GameValueObject(g, associatedPlayer1, associatedPlayer2)).build();
         } else {
             return Response.status(Status.NOT_FOUND).entity("Game with id: [" + gameId + "] is not found").build();
         }
     }
     
-    @POST @Path("/{game-id}/move/{player-id}/{pit-number}")
+    @POST @Path("/game/{game-id}/move/{player-id}/{pit-number}")
     public Response makeMove(
             @NotNull @PathParam("game-id") Integer gameId, 
             @NotNull @PathParam("player-id") Integer playerId,
             @NotNull @Min(1) @Max(6) @PathParam("pit-number") Integer pitNumber ){
         if( service.isPlayerRegistered(playerId) ){
             if( service.isGameOpen(gameId) ){ 
-                return Response.ok( service.makeNextMove(gameId, playerId, pitNumber) ).build();
+                Optional<Game> opt = service.makeNextMove(gameId, playerId, pitNumber);
+                if( opt.isPresent() ){
+                    Game g = opt.get();
+                    Player associatedPlayer1 = service
+                            .getAssociatedPlayer(g.getFirstPlayerId());
+                    Player associatedPlayer2 = service
+                            .getAssociatedPlayer(g.getSecondPlayerId());
+                    return Response.ok(new GameValueObject(g, associatedPlayer1, associatedPlayer2)).build();
+                } else {
+                    return Response.notModified().entity("Game with id: [" + gameId + "] was not modified").build();
+                }
             } else {
                 return Response.status(Status.NOT_FOUND).entity("Game with id: [" + gameId + "] is not found").build();
             }

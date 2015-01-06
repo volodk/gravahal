@@ -24,6 +24,8 @@ public class DemoGameApplication extends io.dropwizard.Application<Configuration
     @Override
     public void run(Configuration configuration, Environment environment) throws Exception {
         
+        environment.servlets().setInitParameter("com.sun.jersey.config.property.packages", "com.test.grahaval"); 
+        
         // Configuring Guice IOC 
         Injector ioc = Guice.createInjector(new AbstractModule(){
             @Override

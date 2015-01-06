@@ -13,6 +13,8 @@ public class Player {
     private int gravahalField;
     private int[] pits = new int[PIT_COUNT];
     
+    private long version;   // for optimistic locking on real storage
+    
     public Player() {
         Arrays.fill(pits, ROCKS_PER_PIT);
     }
@@ -82,6 +84,7 @@ public class Player {
             count -= 1;
         }
         if( canFillGravaHal && count > 0 ){
+            gravahalField += 1;
             count -= 1;
         }
         return count;   // remaining stones to place 

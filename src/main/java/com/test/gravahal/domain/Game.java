@@ -6,11 +6,13 @@ import com.google.common.base.Objects;
 
 public class Game {
 
-    private final int id;
+    private int id;
     private int moveOwnerId;
-    private boolean active;
     private int winner = -1, score = 0;
-    private final int firstPlayer, secondPlayer;
+    private int firstPlayer, secondPlayer;
+    private boolean active;
+    
+    private long version;   // for optimistic locking on real storage
     
     public Game(int gameId, int firstPlayer, int secondPlayer) {
         this.id = gameId;

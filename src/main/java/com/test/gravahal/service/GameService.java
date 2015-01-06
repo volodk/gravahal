@@ -9,6 +9,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.test.gravahal.domain.Game;
 import com.test.gravahal.domain.Player;
+import com.test.gravahal.infrastructure.MutexPool;
 import com.test.gravahal.repository.GameRepository;
 import com.test.gravahal.repository.PlayerRepository;
 
@@ -55,6 +56,11 @@ public class GameService {
         return gameRepository.save(game);
     }
     
+    public Player getAssociatedPlayer(Integer playerId){
+        Preconditions.checkNotNull(playerId, "Player id cannot be Null");
+        return playerRepository.get(playerId).get();
+    }
+    
     public Optional<Game> getBoard(Integer gameId){
         Preconditions.checkNotNull(gameId, "Game id cannot be Null");
         return gameRepository.get(gameId);
@@ -73,11 +79,14 @@ public class GameService {
             
             if( game.isValidPlayer(playerId) ){
                 
-                gameFlow.advance(game, p1, p2, playerId, pitNumber);
+                // serialize request from the same player, other requests are not content on the lock
+                synchronized( MutexPool.mutex(playerId) ){  
+                    gameFlow.advance(game, p1, p2, playerId, pitNumber);
+                    gameRepository.update(game);
+                    playerRepository.update(p1);
+                    playerRepository.update(p2);
+                }
                 
-                gameRepository.update(game);
-                playerRepository.update(p1);
-                playerRepository.update(p2);
             } else {
                 LOGGER.warn("Specified player, id: {} have no relation to game, id {}", playerId, gameId);
             }
