@@ -42,7 +42,7 @@ public class GameEndpoint {
         if( opt.isPresent() ){ 
             return Response.ok( opt.get() ).build();
         } else {
-            return Response.status(Status.NOT_FOUND).entity("Game with id: " + gameId + " is not found").build();
+            return Response.status(Status.NOT_FOUND).entity("Game with id: [" + gameId + "] is not found").build();
         }
     }
     
@@ -55,10 +55,10 @@ public class GameEndpoint {
             if( service.isGameOpen(gameId) ){ 
                 return Response.ok( service.makeNextMove(gameId, playerId, pitNumber) ).build();
             } else {
-                return Response.status(Status.NOT_FOUND).entity("Game with id: " + gameId + " is not found").build();
+                return Response.status(Status.NOT_FOUND).entity("Game with id: [" + gameId + "] is not found").build();
             }
         } else {
-            return Response.status(Status.NOT_FOUND).entity("Player with id: " + playerId + " is not found").build();
+            return Response.status(Status.NOT_FOUND).entity("Player with id: [" + playerId + "] is not found").build();
         }
     }
 }

@@ -21,15 +21,13 @@ public class GameService {
     
     private final GameRepository gameRepository;
     private final PlayerRepository playerRepository;
+    private final GameFlowService gameFlow;
     
     @Inject
-    public GameService(GameRepository gameRepository, PlayerRepository playerRepository) {
+    public GameService(GameRepository gameRepository, PlayerRepository playerRepository, GameFlowService gameFlowService) {
         this.gameRepository = gameRepository;
         this.playerRepository = playerRepository;
-    }
-    
-    public Integer getUniquePlayerId(){
-        return playerRepository.getNextPlayerId();
+        this.gameFlow = gameFlowService;
     }
 
     public boolean isGameOpen(Integer gameId) {
@@ -47,14 +45,14 @@ public class GameService {
         int firstPlayerId = playerRepository.getNextPlayerId();
         int secondPlayerId = playerRepository.getNextPlayerId();
         
-        Player firstPlayer = playerRepository.save(new Player(firstPlayerId));
-        Player secondPlayer = playerRepository.save(new Player(secondPlayerId));
+        Game game = new Game(gameId, firstPlayerId, secondPlayerId);
+        game.setActive(true);
+        game.setInitialMoveOwnerId(firstPlayerId);   // first player moves first
+
+        playerRepository.save(new Player(firstPlayerId));
+        playerRepository.save(new Player(secondPlayerId));
         
-        Game newGameBoard = new Game(gameId, firstPlayer, secondPlayer);
-        newGameBoard.setActive(true);
-        newGameBoard.setOrder(0);   // first player moves first
-        
-        return gameRepository.save(newGameBoard);
+        return gameRepository.save(game);
     }
     
     public Optional<Game> getBoard(Integer gameId){
@@ -68,20 +66,20 @@ public class GameService {
         Preconditions.checkNotNull(pitNumber, "Pit selection cannot be Null");
         
         Optional<Game> opt = gameRepository.get(gameId);
-        if( opt.isPresent()){
+        if( opt.isPresent() ){
             Game game = opt.get();
+            Player p1 = playerRepository.get(game.getFirstPlayerId()).get();
+            Player p2 = playerRepository.get(game.getSecondPlayerId()).get();
             
-            // check all logical preconditions. If there were more then 4-5 conditions this code might be restructured with Chain-of-responsibility    
-            
-            if( !game.isActive() ){
-                LOGGER.info("Game, id {} has been finished", gameId);
-            } else if( game.isPitEmpty(playerId, pitNumber) ){
-                LOGGER.warn("board: {}, player: {}, move: {} is invalid -> empty pit", game, playerId, pitNumber);
-            }  else if( game.isWrongMoveOrder(playerId, pitNumber) ){
-                LOGGER.warn("board: {}, player: {}, move: {} is invalid -> this is not your turn", game, playerId, pitNumber);
-            } else {    // all conditions are satisfied, make a step 
-                game.advance(playerId, pitNumber);
+            if( game.isValidPlayer(playerId) ){
+                
+                gameFlow.advance(game, p1, p2, playerId, pitNumber);
+                
                 gameRepository.update(game);
+                playerRepository.update(p1);
+                playerRepository.update(p2);
+            } else {
+                LOGGER.warn("Specified player, id: {} have no relation to game, id {}", playerId, gameId);
             }
             return Optional.of(game);
         } else {

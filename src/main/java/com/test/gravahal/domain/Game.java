@@ -1,38 +1,45 @@
 package com.test.gravahal.domain;
 
-import java.util.Arrays;
-
 import com.google.common.base.Objects;
-
 
 // Volodymyr_Krasnikov1 <vkrasnikov@gmail.com> 3:45:53 PM 
 
 public class Game {
 
-    private int id;
-    private int order;
+    private final int id;
+    private int moveOwnerId;
     private boolean active;
-    private int winner = -1;
-    private Player[] players;
+    private int winner = -1, score = 0;
+    private final int firstPlayer, secondPlayer;
     
-    public Game(int gameId, Player firstPlayer, Player secondPlayer) {
-        players = new Player[]{ firstPlayer, secondPlayer };
+    public Game(int gameId, int firstPlayer, int secondPlayer) {
+        this.id = gameId;
+        this.firstPlayer = firstPlayer;
+        this.secondPlayer = secondPlayer;
     }
     
     public int getId() {
         return id;
     }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public int getOrder() {
-        return order;
+    
+    public int getFirstPlayerId() {
+        return firstPlayer;
     }
     
-    public void setOrder(int order) {
-        this.order = order;
+    public int getSecondPlayerId() {
+        return secondPlayer;
+    }
+
+    public void recordNextMoveOwnerId() {
+        moveOwnerId = firstPlayer ^ secondPlayer ^ moveOwnerId;
+    }
+    
+    public int getCurrentMoveOwnerId(){
+        return moveOwnerId;
+    }
+    
+    public void setInitialMoveOwnerId(int playerId) {
+        moveOwnerId = playerId;
     }
 
     public boolean isActive() {
@@ -42,50 +49,22 @@ public class Game {
     public void setActive(boolean gameActive) {
         this.active = gameActive;
     }
-
-    public Player[] getPlayers() {
-        return players;
-    }
-
-    public void setPlayers(Player[] players) {
-        this.players = players;
-    }
     
-    public boolean isPitEmpty(Integer playerId, Integer pitNumber) {
-        int index = resolve(playerId);
-        return players[index].countStones(pitNumber) == 0;
-    }
-    
-    public boolean isWrongMoveOrder(Integer playerId, Integer pitNumber) {
-        int index = resolve(playerId);
-        return order != index;
-    }
-
-    public void advance(Integer playerId, Integer pitNumber) {
-        int index = resolve(playerId);
-        Player fp = players[index];
-        
-        int stones = fp.pickup(pitNumber);
-        for(int i = pitNumber + 1; i <= 6; i++){
-            fp.incrementPit(i);
-            stones -= 1;
-        }
-        Player sp = players[1 - index];
-        int i = 1;
-        while( stones > 0 ){
-            sp.incrementPit(i);
-            stones -= 1;
-        }
-        
-        order = 1 - order;  // allow the second player to play
+    public void setWinner(int playerId, int score){
+        this.winner = playerId;
+        this.score = score;
     }
     
     public int getWinner(){
         return winner;
     }
     
-    private int resolve(int playerId){
-        return ( players[0].getId() == playerId ) ? 0 : 1;
+    public int getScore() {
+        return score;
+    }
+    
+    public boolean isValidPlayer(int playerId){
+        return firstPlayer == playerId || secondPlayer == playerId;
     }
 
     @Override
@@ -93,8 +72,9 @@ public class Game {
         return Objects.toStringHelper(this)
                 .add("id", id)
                 .add("active", active)
-                .add("who's next", order)
-                .add("players", Arrays.toString(players) )
+                .add("who's next", moveOwnerId)
+                .add("player 1", firstPlayer )
+                .add("player 2", secondPlayer )
             .toString();
     }
     

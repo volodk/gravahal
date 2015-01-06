@@ -42,11 +42,11 @@ public class Player {
         this.pits = pits;
     }
     
-    int countStones(int pitNumber){
+    public int countStones(int pitNumber){
         return pits[pitNumber - 1];
     }
     
-    int pickup(int pitNumber){
+    public int pickup(int pitNumber){
         int tmp = pits[pitNumber - 1];
         pits[pitNumber - 1] = 0;
         return tmp;
@@ -56,6 +56,17 @@ public class Player {
         pits[pitNumber - 1] += 1;
     }
     
+    public boolean isPitNonEmpty(int pitNumber){
+        return pits[pitNumber-1] > 0;
+    }
+    
+    public boolean isWinner() {
+        boolean winStatus = true;
+        for(int i = 0; winStatus && i < PIT_COUNT; i++)
+            winStatus = pits[i] == 0;
+        return winStatus;
+    }
+    
     @Override
     public String toString() {
         return Objects.toStringHelper(this)
@@ -63,5 +74,16 @@ public class Player {
                 .add("player's Gravahal", gravahalField)
                 .add("pits", Arrays.toString(pits) )
             .toString();
+    }
+
+    public int spreadStones(int count, boolean canFillGravaHal, int startingPit) {
+        for( int i = startingPit-1; count > 0 && i < PIT_COUNT; i++ ){
+            pits[i] += 1;
+            count -= 1;
+        }
+        if( canFillGravaHal && count > 0 ){
+            count -= 1;
+        }
+        return count;   // remaining stones to place 
     }
 }
